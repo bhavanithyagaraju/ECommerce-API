@@ -1,4 +1,5 @@
 ﻿using ECommerce_API.Data;
+using ECommerce_API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce_API.Repository
@@ -6,39 +7,38 @@ namespace ECommerce_API.Repository
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly AppDbContext _context;
-        private readonly DbSet<T> _dbSet;
 
         public Repository(AppDbContext context)
         {
             _context = context;
-            _dbSet = context.Set<T>();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            var users = new List<User>(); // create an empty list
+            return (IEnumerable<T>)await Task.FromResult(users); // wrap in Task
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(long id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _context.Set<T>().FindAsync(id);
         }
 
         public async Task AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
 
-        public void Update(T entity)
+        public async Task Update(T entity)
         {
-            _dbSet.Update(entity);
+            _context.Update(entity);
             _context.SaveChanges();
         }
 
         public void Delete(T entity)
         {
-            _dbSet.Remove(entity);
+            _context.Remove(entity);
             _context.SaveChanges();
         }
     }
